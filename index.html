@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PB-Intelligence | Setup</title>
+	<link rel="manifest" href="manifest.json">
+<script>
+if ('serviceWorker' in navigator) {
+	window.addEventListener('load', () => {
+	navigator.serviceWorker.register('sw.js').then(registration => {
+	console.log('ServiceWorker registration successful with scope: ', registration.scope);
+	}, err => {
+	console.log('ServiceWorker registration failed: ', err);
+	}).catch(err => {
+	console.log(err)
+	});
+	});
+}
+</script>
+    
+    
+    
+
+    <!-- Google Fonts & Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+
+    <style>
+        :root {
+            --ai-grad-primary: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #3b82f6 100%);
+            --ai-grad-active: linear-gradient(135deg, #f43f5e 0%, #8b5cf6 50%, #0ea5e9 100%);
+            --glass-bg: rgba(255, 255, 255, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --glass-blur: 25px;
+            --text-main: #1d1d1f;
+            --text-sub: #48484a;
+            --bg-base: #f5f5f7;
+            --m3-easing: cubic-bezier(0.32, 0.72, 0, 1);
+            --transition-smooth: 0.5s var(--m3-easing);
+        }
+
+        .dark-mode {
+            --glass-bg: rgba(28, 28, 30, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f5f5f7;
+            --text-sub: #a1a1a6;
+            --bg-base: #000000;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', 'Noto Sans JP', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            transition: background-color var(--transition-smooth);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            touch-action: none;
+        }
+
+        /* --- Scroll & Overscroll Container --- */
+        #app-viewport {
+            height: 100vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            perspective: 1200px;
+            scroll-behavior: smooth;
+        }
+
+        /* --- Fluid Background --- */
+        .liquid-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; overflow: hidden; filter: blur(80px); opacity: 0.8;
+            pointer-events: none;
+        }
+        .liquid-blob {
+            position: absolute;
+            background: var(--ai-grad-primary);
+            border-radius: 50%;
+            width: 600px; height: 600px;
+            mix-blend-mode: multiply;
+            animation: blobFlow 20s infinite alternate ease-in-out;
+            will-change: transform;
+        }
+        .dark-mode .liquid-blob { mix-blend-mode: screen; opacity: 0.5; }
+
+        @keyframes blobFlow {
+            0% { transform: translate(-10%, -10%) scale(1); border-radius: 60% 40% 30% 70%/60% 30% 70% 40%; }
+            50% { transform: translate(20%, 10%) scale(1.1); border-radius: 30% 60% 70% 40%/50% 60% 30% 60%; }
+            100% { transform: translate(-5%, 20%) scale(0.9); border-radius: 60% 40% 30% 70%/60% 30% 70% 40%; }
+        }
+
+        header {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            height: 72px; padding: 0 32px;
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--glass-blur));
+            border-bottom: 1px solid var(--glass-border);
+        }
+        .logo {
+            font-weight: 700; font-size: 22px; letter-spacing: -0.5px;
+            background: var(--ai-grad-primary);
+            -webkit-background-clip: text; -webkit-fill-color: transparent;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .logo img { height: 28px; width: 28px; object-fit: contain; }
+
+        main {
+            padding: 100px 24px 150px;
+            max-width: 600px; margin: 0 auto;
+            min-height: 100%;
+            transition: opacity 0.3s ease, transform 0.3s var(--m3-easing);
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.05);
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out, box-shadow 0.3s ease;
+            will-change: transform;
+        }
+        .glass-card:hover { box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+
+        h2 { font-size: 28px; margin-top: 0; font-weight: 700; }
+        p { line-height: 1.8; color: var(--text-sub); }
+
+        @keyframes squishy {
+            0% { transform: scale(1, 1); }
+            30% { transform: scale(1.15, 0.85); }
+            50% { transform: scale(0.9, 1.1); }
+            70% { transform: scale(1.05, 0.95); }
+            100% { transform: scale(1, 1); }
+        }
+        .squish-active { animation: squishy 0.5s var(--m3-easing); }
+
+        .ai-btn {
+            border: none; outline: none;
+            padding: 16px 32px; border-radius: 20px;
+            font-weight: 600; font-size: 16px;
+            color: white; cursor: pointer;
+            background: var(--ai-grad-primary);
+            background-size: 200% 200%;
+            transition: all 0.5s var(--m3-easing);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+            display: inline-flex; align-items: center; gap: 8px;
+            width: 100%; justify-content: center;
+        }
+        .ai-btn:active { background: var(--ai-grad-active); transform: scale(0.95); }
+
+        .glass-input {
+            width: 100%; padding: 18px 22px;
+            border-radius: 20px; border: 1px solid var(--glass-border);
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--glass-blur));
+            color: var(--text-main); font-size: 16px;
+            box-sizing: border-box; transition: all 0.3s var(--m3-easing);
+            margin-bottom: 16px;
+        }
+        .glass-input:focus { outline: none; border-color: #a855f7; background: rgba(255, 255, 255, 0.5); }
+
+        .toggle-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 0;
+        }
+        .switch { position: relative; display: inline-block; width: 54px; height: 30px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            transition: .4s var(--m3-easing); border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 3px;
+            background: white; transition: .4s var(--m3-easing); border-radius: 50%;
+        }
+        input:checked + .slider { background: var(--ai-grad-primary); }
+        input:checked + .slider:before { transform: translateX(24px); }
+
+        .view { display: none; }
+        .view.active { display: block; animation: viewIn 0.6s var(--m3-easing); }
+        @keyframes viewIn {
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .tool-item {
+            display: flex; flex-direction: column; gap: 8px;
+            padding: 20px; border-radius: 24px; background: rgba(255,255,255,0.1);
+            border: 1px solid var(--glass-border); margin-bottom: 16px;
+            cursor: pointer; transition: 0.3s;
+        }
+        .tool-item:hover { background: rgba(255,255,255,0.2); transform: translateX(5px); }
+        .tool-name { font-weight: 700; font-size: 18px; color: var(--text-main); }
+        .tool-info { font-size: 14px; color: var(--text-sub); }
+
+        .theme-toggle {
+            width: 48px; height: 48px; border-radius: 24px;
+            border: 1px solid var(--glass-border); background: var(--glass-bg);
+            color: var(--text-main); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .setup-progress {
+            display: flex; justify-content: center; gap: 8px; margin-top: 20px;
+        }
+        .dot { width: 8px; height: 8px; border-radius: 4px; background: var(--glass-border); transition: 0.3s; }
+        .dot.active { width: 24px; background: var(--ai-grad-primary); }
+
+        .avatar-preview {
+            width: 100px; height: 100px; border-radius: 50%; 
+            background: var(--glass-bg); margin: 0 auto 20px;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid var(--glass-border); overflow: hidden;
+        }
+        .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+    </style>
+</head>
+<body>
+
+    <div class="liquid-bg">
+        <div class="liquid-blob" id="blob-1" style="left: -10%; top: -10%;"></div>
+        <div class="liquid-blob" id="blob-2" style="right: -10%; bottom: -10%; background: var(--ai-grad-active); animation-delay: -5s;"></div>
+    </div>
+
+    <header>
+        <div class="logo">
+            <img src="https://raw.githubusercontent.com/PolandBallHub-Operator/PBscreenshot/refs/heads/main/countryball_aiball.png" alt="logo">
+            PB-Intelligence
+        </div>
+        <button class="theme-toggle" id="theme-btn">
+            <span class="material-symbols-outlined">light_mode</span>
+        </button>
+    </header>
+
+    <div id="app-viewport">
+        <main id="main-content">
+            
+            <!-- Step 1: Welcome -->
+            <section id="step-welcome" class="view">
+                <div class="glass-card tilt-card" style="text-align: center;">
+                    <img src="https://raw.githubusercontent.com/PolandBallHub-Outline/PBscreenshot/refs/heads/main/countryball_aiball.png" style="width: 120px; margin-bottom: 20px;" onerror="this.src='https://raw.githubusercontent.com/PolandBallHub-Operator/PBscreenshot/refs/heads/main/countryball_aiball.png'">
+                    <h2>ようこそ</h2>
+                    <p>次世代のAI体験、PB-Intelligenceへ。<br>あなたのデバイスで、究極の自由を。</p>
+                    <button class="ai-btn" onclick="nextStep('step-policy')">
+                        開始する <span class="material-symbols-outlined">arrow_forward</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Step 2: Policy/About -->
+            <section id="step-policy" class="view">
+                <div class="glass-card tilt-card">
+                    <h2>私たちの信念</h2>
+                    <p style="font-size: 15px;">PBhubは、AI技術をもっと身近に、もっと自由に、そして何よりも「無料で」誰もが使えるようにしたいという、私の強い思いから生まれました。Apple Intelligenceのような素晴らしい有料AIサービスが次々と登場する現代において、私たちはあえて「無料」という道を選びました。これは、AIの恩恵が一部の人々に限定されるべきではないという信念、特に未来を担う学生の皆さんに、気軽にAIに触れて、その可能性を体験してほしいという願いがあるからです。</p>
+                    <p>Intelligenceでは、AIチャットや画像編集AIなどがすべて無料で利用可能です。</p>
+                    <button class="ai-btn" onclick="nextStep('step-account')">
+                        同意して次へ
+                    </button>
+                </div>
+            </section>
+
+            <!-- Step 3: User Info -->
+            <section id="step-account" class="view">
+                <div class="glass-card tilt-card">
+                    <h2>あなたについて</h2>
+                    <div class="avatar-preview" id="avatar-preview">
+                        <span class="material-symbols-outlined" style="font-size: 40px;">person</span>
+                    </div>
+                    <input type="text" id="user-name" class="glass-input" placeholder="ユーザー名">
+                    <input type="text" id="user-icon" class="glass-input" placeholder="アイコンURL (任意)" oninput="updateAvatar(this.value)">
+                    <button class="ai-btn" onclick="nextStep('step-api')">次へ</button>
+                </div>
+            </section>
+
+            <!-- Step 4: API Config -->
+            <section id="step-api" class="view">
+                <div class="glass-card tilt-card">
+                    <h2>AI設定</h2>
+                    <p>Gemini APIを使用して、Intelligenceをパーソナライズします。</p>
+                    <input type="password" id="gemini-key" class="glass-input" placeholder="Gemini API Key">
+                    <input type="text" id="gemini-model" class="glass-input" placeholder="Model (例: gemini-2.0-flash)" value="gemini-2.0-flash">
+                    <div class="toggle-row">
+                        <span>今日のおすすめを表示</span>
+                        <label class="switch">
+                            <input type="checkbox" id="recommend-toggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <button class="ai-btn" onclick="completeSetup()">
+                        セットアップ完了
+                    </button>
+                </div>
+            </section>
+
+            <!-- Final: Intelligence List -->
+            <section id="view-list" class="view">
+                <div id="recommend-area"></div>
+                <div class="glass-card">
+                    <h2 style="display: flex; align-items: center; gap: 10px;">
+                        <span class="material-symbols-outlined" style="color: #a855f7;">grid_view</span>
+                        AIツール一覧
+                    </h2>
+                    <div id="tools-container">
+                        <!-- Tools will be injected here -->
+                    </div>
+                </div>
+                
+                <div class="glass-card" id="user-profile-card">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div id="final-avatar" style="width: 50px; height: 50px; border-radius: 25px; overflow: hidden; background: var(--glass-bg);">
+                            <img src="" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div>
+                            <div id="final-username" style="font-weight: 700;">User Name</div>
+                            <div style="font-size: 12px; opacity: 0.6;" id="final-model">Model Name</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        const DB_NAME = 'PBIntelligenceDB';
+        const STORE_NAME = 'settings';
+        const AI_TOOLS = [
+            "マジック消しゴム:無限に使えるマジック消しゴム:sites.google.com/view/pballhub/%E6%B6%88%E3%81%97%E3%82%B4%E3%83%A0%E3%83%9E%E3%82%B8%E3%83%83%E3%82%AF",
+            "AI画像拡大&鮮明化:AIがどんな画像も高画質化！ローカルで実行するためすべての画像対応。:sites.google.com/view/pballhub/ai%E7%94%BB%E5%83%8F%E6%8B%A1%E5%A4%A7%E9%AE%AE%E6%98%8E%E5%8C%96",
+            "AI画像識別:AIが画像を識別します。複数枚アップロードでフォルダ分けも。:sites.google.com/view/pballhub/ai%E7%94%BB%E5%83%8F%E8%AD%98%E5%88%A5",
+            "AI画像切り抜き:画像を拡自動背景透過。:sites.google.com/view/pballhub/ai%E7%94%BB%E5%83%8F%E5%88%87%E3%82%8A%E6%8A%9C%E3%81%8D",
+            "文字読み取り:無料のOCRツール:sites.google.com/view/pballhub/%E6%96%87%E5%AD%97%E8%AA%AD%E3%81%BF%E5%8F%96%E3%82%8A",
+            "画像拡大:どんな画像も拡大。あなたのスマホで。:sites.google.com/view/pballhub/%E7%94%BB%E5%83%8F%E6%8B%A1%E5%A4%A7pb",
+            "背景透明化:白って200色あんねん。対応。:sites.google.com/view/pballhub/%E9%80%8F%E6%98%8E%E5%8C%96",
+            "文字起こし:いつまでも無料。:polandballhub-operator.github.io/mojiokosi/",
+            "IderHub:アイデアをダ出すのを協力！:sites.google.com/view/pballhub/iderhub",
+            "PolanAI:チャットAI。インストールできる。ほぼGemini™なんね。:polandballhub-operator.github.io/polanai/",
+            "intelligenceHub:知的好奇心をサポート:sites.google.com/view/pballhub/search-intelligence",
+            "AIVideoSearch:AIで動画検索:sites.google.com/view/pballhub/videoai",
+            "AI歴史:PBは歴史だ。PBたちのやりとりで世界史を学ぶ。:polandballhub-operator.github.io/pbhistory/",
+            "AI地図:AIでお出かけを豊かに:sites.google.com/view/pballhub/%E3%82%B7%E3%83%B3%E3%83%97%E3%83%AB%E3%83%9E%E3%83%83%E3%83%97",
+            "画像拡張:画像を拡張します。推しの絵などで。:sites.google.com/view/pballhub/%E7%94%BB%E5%83%8F%E6%8B%A1%E5%BC%B5",
+            "タングルのAImode:GoogleAIモード。学校PCでも。:sites.google.com/view/pballhub/tanglesaimode"
+        ];
+
+        let db;
+        const viewport = document.getElementById('app-viewport');
+        const mainContent = document.getElementById('main-content');
+
+        // --- IndexedDB Logic ---
+        function initDB() {
+            return new Promise((resolve) => {
+                const request = indexedDB.open(DB_NAME, 1);
+                request.onupgradeneeded = (e) => {
+                    db = e.target.result;
+                    db.createObjectStore(STORE_NAME);
+                };
+                request.onsuccess = (e) => {
+                    db = e.target.result;
+                    resolve();
+                };
+            });
+        }
+
+        async function saveSettings(data) {
+            const tx = db.transaction(STORE_NAME, 'readwrite');
+            tx.objectStore(STORE_NAME).put(data, 'user_config');
+            return new Promise(resolve => tx.oncomplete = resolve);
+        }
+
+        async function getSettings() {
+            const tx = db.transaction(STORE_NAME, 'readonly');
+            const request = tx.objectStore(STORE_NAME).get('user_config');
+            return new Promise(resolve => request.onsuccess = () => resolve(request.result));
+        }
+
+        // --- Navigation ---
+        function nextStep(stepId) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(stepId).classList.add('active');
+            viewport.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function updateAvatar(url) {
+            const preview = document.getElementById('avatar-preview');
+            if (url && url.startsWith('http')) {
+                preview.innerHTML = `<img src="${url}" onerror="this.parentElement.innerHTML='<span class=\'material-symbols-outlined\'>person</span>'">`;
+            } else {
+                preview.innerHTML = `<span class="material-symbols-outlined" style="font-size: 40px;">person</span>`;
+            }
+        }
+
+        async function completeSetup() {
+            const config = {
+                name: document.getElementById('user-name').value || 'Guest',
+                icon: document.getElementById('user-icon').value,
+                apiKey: document.getElementById('gemini-key').value,
+                model: document.getElementById('gemini-model').value,
+                recommend: document.getElementById('recommend-toggle').checked,
+                setupDone: true
+            };
+            await saveSettings(config);
+            renderMainView(config);
+        }
+
+        function renderMainView(config) {
+            nextStep('view-list');
+            
+            // Render Tools
+            const container = document.getElementById('tools-container');
+            container.innerHTML = '';
+            AI_TOOLS.forEach(toolStr => {
+                const [name, info, url] = toolStr.split(':');
+                const div = document.createElement('div');
+                div.className = 'tool-item';
+                div.onclick = () => window.open(url.startsWith('http') ? url : `https://${url}`, '_blank');
+                div.innerHTML = `
+                    <div class="tool-name">${name}</div>
+                    <div class="tool-info">${info}</div>
+                `;
+                container.appendChild(div);
+            });
+
+            // Profile info
+            document.getElementById('final-username').textContent = config.name;
+            document.getElementById('final-model').textContent = config.model;
+            if (config.icon) {
+                document.querySelector('#final-avatar img').src = config.icon;
+            } else {
+                document.getElementById('final-avatar').innerHTML = '<span class="material-symbols-outlined" style="font-size: 30px; margin: 10px;">person</span>';
+            }
+
+            // Recommendation (Mock API)
+            if (config.recommend) {
+                const recArea = document.getElementById('recommend-area');
+                recArea.innerHTML = `
+                    <div class="glass-card" style="background: var(--ai-grad-primary); color: white;">
+                        <div style="font-size: 12px; font-weight: bold; opacity: 0.8; margin-bottom: 5px;">TODAY'S PICK</div>
+                        <h2 style="font-size: 20px; color: white;">AI画像拡大&鮮明化</h2>
+                        <p style="color: rgba(255,255,255,0.8); font-size: 14px;">今日はクリエイティブな気分ですか？古い写真を蘇らせましょう。</p>
+                    </div>
+                `;
+            }
+        }
+
+        // --- Interaction Logic ---
+        function initTilt() {
+            document.addEventListener('mousemove', (e) => {
+                const cards = document.querySelectorAll('.tilt-card');
+                cards.forEach(card => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    if (x < 0 || x > rect.width || y < 0 || y > rect.height) return;
+                    
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateX = (y - centerY) / 15;
+                    const rotateY = (centerX - x) / 15;
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+                });
+            });
+
+            document.addEventListener('mouseout', (e) => {
+                if (e.target.closest('.tilt-card')) {
+                    e.target.closest('.tilt-card').style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+                }
+            });
+        }
+
+        // Squishy effect
+        document.addEventListener('mousedown', (e) => {
+            const target = e.target.closest('.ai-btn, .tool-item');
+            if (target) {
+                target.classList.add('squish-active');
+                setTimeout(() => target.classList.remove('squish-active'), 500);
+            }
+        });
+
+        // Theme
+        const themeBtn = document.getElementById('theme-btn');
+        themeBtn.addEventListener('click', () => {
+            const isDark = document.body.classList.toggle('dark-mode');
+            themeBtn.querySelector('span').textContent = isDark ? 'dark_mode' : 'light_mode';
+        });
+
+        // App Initialization
+        window.onload = async () => {
+            await initDB();
+            initTilt();
+            
+            const config = await getSettings();
+            if (config && config.setupDone) {
+                renderMainView(config);
+            } else {
+                nextStep('step-welcome');
+            }
+
+            // Blob animation mouse sync
+            window.addEventListener('mousemove', (e) => {
+                const moveX = (e.clientX / window.innerWidth - 0.5) * 30;
+                const moveY = (e.clientY / window.innerHeight - 0.5) * 30;
+                document.getElementById('blob-1').style.transform = `translate(${moveX}px, ${moveY}px)`;
+                document.getElementById('blob-2').style.transform = `translate(${-moveX}px, ${-moveY}px)`;
+            });
+        };
+
+    </script>
+</body>
+</html>
